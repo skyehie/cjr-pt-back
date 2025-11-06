@@ -11,8 +11,108 @@ model User {
   id  Int @id @default(autoincrement())
   nome               String 
   usuario            String @unique
-  senha              String 
-  confirmacaoSenha   String
-  createdAt           DateTime @default(now())
+  email              String @unique
+  senha_hash         String //não esquecer de implementar a criptografia de senha 
+  foto_perfil_url    String 
+  createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  lojas Loja[]
+  avaliacoesLoja AvaliacaoLoja[]
+  avaliacoesProd AvaliacaoProduto[]
+  comentarios    ComentarioAvaliacao[]
+}
+
+model Loja { 
+  id             Int   @id @default(autoincrement())
+  usuario_id     Int 
+  nome           String
+  descricao      String 
+  logo_url       String
+  banner_url     String
+  sticker_url    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  usuario User @relation(fields: [usuario_id], references:[id])
+  produtos Produto[]
+  avaliacoes AvaliacaoLoja[]
+}
+
+model Produto {
+  id              Int   @id @default(autoincrement())
+  loja_id         Int  
+  categoria_id    Int 
+  nome            String
+  descricao       String 
+  preco           Decimal @db.Decimal(10,2)
+  estoque         Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+ 
+  loja       Loja        @relation(fields: [loja_id], references: [id])
+  categoria  Categoria   @relation(fields: [categoria_id], references: [id])
+  imagens    ImagemProduto[]
+  avaliacoes AvaliacaoProduto[]
+}
+
+model Categoria {
+  id                   Int @id @default(autoincrement())
+  nome                 String 
+  categoria_pai_id     Int?
+
+  categoriaPai    Categoria?  @relation("Subcategorias", fields: [categoria_pai_id], references: [id])
+  subcategorias   Categoria[] @relation("Subcategorias")
+  produtos        Produto[]
+}
+
+model ImagemProduto {
+  id               Int @id @default(autoincrement())
+  produto_id       Int 
+  url_imagem       String 
+  ordem            Int 
+
+  produto Produto @relation(fields: [produto_id], references: [id])
+
+}
+
+model AvaliacaoLoja {
+  id              Int @id @default(autoincrement())
+  usuario_id      Int
+  loja_id         Int
+  nota            Int 
+  comentario      String
+  createdAt       DateTime @default(now())
+  
+  usuario     User  @relation(fields: [usuario_id], references: [id])
+  loja        Loja  @relation(fields: [loja_id],    references: [id])
+  comentarios ComentarioAvaliacao[]
+
+}
+
+model AvaliacaoProduto {
+  id          Int @id @default(autoincrement())
+  usuario_id  Int 
+  produto_id  Int
+  nota        Int
+  comentario  String
+  createdAt   DateTime @default(now())
+
+  usuario  User    @relation(fields: [usuario_id], references: [id])
+  produto  Produto @relation(fields: [produto_id], references: [id])
+  comentarios ComentarioAvaliacao[]
+}
+
+model ComentarioAvaliacao {
+  id                     Int @id @default(autoincrement())
+  usuario_id             Int 
+  avaliacao_loja_id      Int?
+  avaliacao_produto_id   Int?
+  comentario             String 
+  createdAt              DateTime      @default(now())
+  
+  usuario  User  @relation(fields: [usuario_id], references: [id])
+  avaliacaoLoja AvaliacaoLoja? @relation(fields: [avaliacao_loja_id], references: [id])
+  avaliacaoProduto AvaliacaoProduto? @relation(fields: [avaliacao_produto_id], references: [id])
+
 }
