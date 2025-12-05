@@ -1,18 +1,22 @@
-// src/app.module.ts (Versão Limpa)
 
 import { Module } from '@nestjs/common';
-// O caminho abaixo assume que seu UserModule está em src/user/user.module.ts
-import { UserModule } from './user/user.module'; 
+import { ConfigModule } from '@nestjs/config'; 
+import { TaskModule } from './task/task.module';
+import { UserModule } from './user/user.module';
+import { LojaModule } from './loja/loja.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    UserModule, // 💡 Importação do módulo de usuário
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    UserModule,
+    TaskModule,
+    LojaModule,
+    AuthModule, 
   ],
-  controllers: [
-    // Se você não tem AppController, deixe este array vazio
-  ],
-  providers: [
-    // Se você não tem AppService, deixe este array vazio
-  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

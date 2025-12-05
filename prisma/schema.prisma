@@ -24,15 +24,17 @@ model User {
 }
 
 model Loja { 
-  id             Int   @id @default(autoincrement())
-  usuario_id     Int 
-  nome           String
-  descricao      String 
-  logo_url       String
-  banner_url     String
-  sticker_url    String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               Int   @id @default(autoincrement())
+  usuario_id       Int 
+  nome             String
+  descricao        String 
+  categoria        String?
+  foto_perfil_url  String? @map("foto_perfil_url")
+  logo_url         String? @map("logo_url")
+  banner_url       String? @map("banner_url")
+  sticker_url      String? @map("sticker_url")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   usuario User @relation(fields: [usuario_id], references:[id])
   produtos Produto[]
@@ -116,3 +118,4 @@ model ComentarioAvaliacao {
   avaliacaoProduto AvaliacaoProduto? @relation(fields: [avaliacao_produto_id], references: [id])
 
 }
+
