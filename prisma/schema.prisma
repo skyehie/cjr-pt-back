@@ -61,7 +61,6 @@ model Produto {
 model Categoria {
   id                   Int @id @default(autoincrement())
   nome                 String 
-  categoria_pai_id     Int?
 
   categoriaPai    Categoria?  @relation("Subcategorias", fields: [categoria_pai_id], references: [id])
   subcategorias   Categoria[] @relation("Subcategorias")
