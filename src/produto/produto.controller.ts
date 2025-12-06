@@ -1,41 +1,57 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
-import { ProdutoService } from './produto.service';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
+import { Controller, Get, Post, Body, Param, Delete, Put, ParseIntPipe, NotFoundException, } from '@nestjs/common'
+import { ProdutoService } from '@produto/produto.service';
+import { CreateProdutoDto } from '@/dto/create-produto.dto';
+import { UpdateProdutoDto } from '@/dto/update-produto.dto';
 
-@Controller('produtos') // 👈 rota base
+@Controller('produtos')
 export class ProdutoController {
   constructor(private readonly produtoService: ProdutoService) {}
 
-  // 🟢 CREATE
   @Post()
   async create(@Body() data: CreateProdutoDto) {
-    data.preco = data.preco?.toString();
     return this.produtoService.create(data);
   }
 
-  // 🔵 READ - todos
   @Get()
   async findAll() {
     return this.produtoService.findAll();
   }
 
-  // 🟣 READ - por id
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.produtoService.findOne(Number(id));
+  async findOne(@Param('id', ParseIntPipe) id: number) { 
+    const produto = await this.produtoService.findOne(id);
+
+    if (!produto) {
+      throw new NotFoundException(`Produto com ID ${id} não encontrado.`);
+    }
+
+    return produto;
   }
 
-  // 🟠 UPDATE
   @Put(':id')
-  async update(@Param('id') id: string, @Body() data: UpdateProdutoDto) {
-    data.preco = data.preco?.toString();
-    return this.produtoService.update(Number(id), data);
+  async update(
+    @Param('id', ParseIntPipe) id: number, 
+    @Body() data: UpdateProdutoDto
+  ) {
+    try {
+        return await this.produtoService.update(id, data);
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            throw new NotFoundException(`Produto com ID ${id} não encontrado.`);
+        }
+        throw error;
+    }
   }
 
-  // 🔴 DELETE
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.produtoService.remove(Number(id));
+  async remove(@Param('id', ParseIntPipe) id: number) { 
+    try {
+        return await this.produtoService.remove(id);
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            throw new NotFoundException(`Produto com ID ${id} não encontrado para deleção.`);
+        }
+        throw error;
+    }
   }
 }
